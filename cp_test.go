@@ -7,6 +7,15 @@ import (
 	. "github.com/HWSkynet/cpgame"
 )
 
-func TestVersion(t *testing.T) {
+var test Player = Player{
+	Id:   "ayame",
+	Life: 50,
+}
+
+func TestA(t *testing.T) {
+	InputParse("  铅笔刀 投掷  ayame   ")
 	t.Log("version:" + Version())
+	t.Log(test.Life)
+	test.GetDamage(15)
+	t.Log(test.Life)
 }
