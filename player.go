@@ -6,16 +6,19 @@ import "fmt"
 type Player struct {
 	Id       string
 	Name     string
+	State    string
 	Life     int8   // 生命值0-50 显示为0.0-5.0
 	Energy   int8   // 行动点数
 	Weight   int8   // 当前负重(最大100)
+	Killed   int8   // 杀敌数
+	Assist   int8   // 助攻数
 	Pos      Coord  // 坐标
 	Mainhand Item   // 物品
 	Pocket   []Item // 包裹
 }
 
 func NewPlayer(id string) *Player {
-	return &Player{Id: id, Life: 50, Energy: 5}
+	return &Player{Id: id, Life: 50, Energy: 5, State: "init"}
 }
 
 func (self *Player) GetDamage(damage int8) {
