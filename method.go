@@ -7,8 +7,8 @@ import (
 )
 
 type Info struct {
-	statu int
-	text  string
+	Statu int // <0表示错误 >0表示时间(秒)
+	Text  string
 }
 
 type Method func([]string) Info

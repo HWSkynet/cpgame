@@ -5,14 +5,26 @@ package cpgame
 
 type PlayerList []*Player
 
+var PL PlayerList
+
 func NewPlayerList() *PlayerList {
-	pl := make(PlayerList, 0, 100)
-	return &pl
+	NewGame()
+	PL = make(PlayerList, 0, 100)
+	return &PL
 }
 
 func (self *PlayerList) ID(id string) *Player {
 	for _, v := range *self {
 		if v.Id == id {
+			return v
+		}
+	}
+	return &Player{}
+}
+
+func (self *PlayerList) NAME(name string) *Player {
+	for _, v := range *self {
+		if v.Name == name {
 			return v
 		}
 	}
@@ -48,7 +60,7 @@ func (self *PlayerList) Remove(id string) {
 	}
 }
 
-func (self *PlayerList) GetReady(id string) {
+func (self *PlayerList) ImReady(id string) {
 	p := self.ID(id)
 	if p.Id != "" {
 		if p.State == "ready" {
@@ -63,6 +75,16 @@ func (self *PlayerList) CountReady() int {
 	var cnt int = 0
 	for _, v := range *self {
 		if v.State == "ready" {
+			cnt += 1
+		}
+	}
+	return cnt
+}
+
+func (self *PlayerList) CountLive() int {
+	var cnt int = 0
+	for _, v := range *self {
+		if v.Life > 0 {
 			cnt += 1
 		}
 	}

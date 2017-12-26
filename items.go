@@ -3,12 +3,12 @@ package cpgame
 
 type Item struct {
 	Name   string
-	Weight int8
+	Weight int
 	Usage  map[string]Method
 }
 
 var Throw Method = func([]string) Info {
-	return Info{text: "test"}
+	return Info{Text: "test"}
 }
 
 var Knife Item = Item{
