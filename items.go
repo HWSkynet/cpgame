@@ -18,3 +18,7 @@ var Knife Item = Item{
 		"投掷": Throw,
 	},
 }
+
+// name:时间胶囊
+// desc:一个小小的胶囊，里面有一小撮时间
+// efect:使用后，增加1D3个行动点

@@ -8,7 +8,6 @@ type PlayerList []*Player
 var PL PlayerList
 
 func NewPlayerList() *PlayerList {
-	NewGame()
 	PL = make(PlayerList, 0, 100)
 	return &PL
 }
@@ -84,7 +83,7 @@ func (self *PlayerList) CountReady() int {
 func (self *PlayerList) CountLive() int {
 	var cnt int = 0
 	for _, v := range *self {
-		if v.Life > 0 {
+		if v.Alive {
 			cnt += 1
 		}
 	}

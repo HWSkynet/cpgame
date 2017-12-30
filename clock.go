@@ -41,7 +41,7 @@ func GetRoundTime() int {
 
 func energyFresh() {
 	for _, v := range PL {
-		if v.Life > 0 {
+		if v.Alive {
 			v.Energy = 5
 		}
 	}
@@ -54,7 +54,7 @@ func game10sHandler() {
 	}
 	var active int = 0 // 场上剩余行动点的玩家数
 	for _, v := range PL {
-		if v.Life > 0 && v.Energy > 0 {
+		if v.Alive && v.Energy > 0 {
 			active += 1
 		}
 	}

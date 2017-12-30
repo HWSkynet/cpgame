@@ -4,35 +4,30 @@ package cpgame
 import "fmt"
 
 type Player struct {
-	Id       string
-	Name     string
-	State    string
-	Life     int    // 生命值0-50 显示为0.0-5.0
+	Id    string
+	Name  string
+	State string
+	Alive bool // 还有气儿没？
+	// Life     int    // 生命值0-50 显示为0.0-5.0
+	Blood int // 当前血液体积
+	// 在受创后，会持续按时间流血。
+	// 当血量低于一定值后，将定时掷骰，决定是否因流血过多而死亡。
+	// 使用医疗用品可以止血。伤口不会自动愈合。
 	Energy   int    // 行动点数
 	Weight   int    // 当前负重(最大100)
 	Killed   int    // 杀敌数
 	Assist   int    // 助攻数
 	Pos      Coord  // 坐标
 	Mainhand Item   // 物品
-	Pocket   []Item // 包裹
+	Pocket   []Item // 所拥有的物品
 }
 
 func NewPlayer(id string) *Player {
-	return &Player{Id: id, Life: 50, Energy: 5, State: "init"}
+	return &Player{Id: id, Alive: true, Blood: 4500 + Dice("1d500").Value(), Energy: 5, State: "init"}
 }
 
 func (self *Player) GetDamage(damage int) {
-	self.Life -= damage
-	if self.Life < 0 {
-		self.Life = 0
-	}
-}
 
-func (self *Player) Recover(v int) {
-	self.Life += v
-	if self.Life > 50 {
-		self.Life = 50
-	}
 }
 
 func (self *Player) refreshWeight() {
@@ -45,6 +40,8 @@ func (self *Player) Pick(item Item) Info {
 		// 返回失败，超过负重
 	} else {
 		// 放入包裹(当主手为空时，持于主手)
+		// 从地图中删除物品
+		// append(self.Pocket, item)
 	}
 	return Info{}
 }
@@ -53,8 +50,15 @@ func (self *Player) Use(item Item) {
 
 }
 
-func (self *Player) Handhold(item Item) {
-
+func (self *Player) Handhold(name string) {
+	for _, v := range self.Pocket {
+		if v.Name == name {
+			self.Mainhand = v
+			return
+		}
+	}
+	// 报错，不拥有这个名字的物品
+	return
 }
 
 func (self *Player) Throw(item Item) {
@@ -88,11 +92,11 @@ func (self *Player) attack(parameter []string) Info {
 	if self.Energy < 1 {
 		return Info{-1, fmt.Sprintf("已经没有足够的行动点来进行攻击了")}
 	}
-	if p.Life > 0 {
+	if p.Alive {
 		dmg := Dice("3d3").Value()
 		p.GetDamage(dmg)
 		self.Energy -= 1
-		if p.Life > 0 {
+		if p.Alive {
 			return Info{5, fmt.Sprintf("`%s`使用小拳拳锤击了`%s`的胸口，造成`%d`点伤害", self.Name, p.Name, dmg)}
 		} else {
 			return Info{5, fmt.Sprintf("`%s`使用小拳拳锤击`%s`的胸口,造成`%s`五脏六腑爆裂而亡", self.Name, p.Name, p.Name)}
@@ -108,20 +112,20 @@ func (self *Player) move(direction string) Info {
 	switch direction {
 	case "w":
 		// if Map.Valid(self.Pos.x,self.Pos.y-1)
-		self.Pos.y -= 1
+		self.Pos.Y -= 1
 		self.Pos.detail = "s"
 	case "a":
-		self.Pos.x -= 1
+		self.Pos.X -= 1
 		self.Pos.detail = "d"
 	case "s":
-		self.Pos.y += 1
+		self.Pos.Y += 1
 		self.Pos.detail = "w"
 	case "d":
-		self.Pos.x += 1
+		self.Pos.X += 1
 		self.Pos.detail = "a"
 	default:
 		return Info{-1, "无效的移动参数[w,a,s,d]"}
 	}
 	self.Energy -= 1
-	return Info{5, fmt.Sprintf("成功移动到坐标[%d,%d]", self.Pos.x, self.Pos.y)}
+	return Info{5, fmt.Sprintf("成功移动到坐标[%d,%d]", self.Pos.X, self.Pos.Y)}
 }

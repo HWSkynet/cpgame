@@ -1,9 +1,14 @@
 // map.go
 package cpgame
 
+type Xy struct {
+	X int
+	Y int
+}
+
 type Coord struct {
-	x      int8
-	y      int8
+	X      int8
+	Y      int8
 	detail string
 }
 
@@ -19,5 +24,19 @@ type Room struct {
 	D Field
 }
 
-type Map struct {
+type Map map[Xy]Field
+
+func NewMap() Map {
+	x := Map{
+		{0, 0}: {},
+		{1, 0}: {},
+		{2, 0}: {},
+		{0, 1}: {},
+		{1, 1}: {},
+		{2, 1}: {},
+		{0, 2}: {},
+		{1, 2}: {},
+		{2, 2}: {},
+	}
+	return x
 }

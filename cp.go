@@ -19,9 +19,10 @@ type Dice string
 
 var diceexp *regexp.Regexp
 
-func NewGame() {
+func NewGame() (*PlayerList, Map) {
 	diceexp, _ = regexp.Compile("(\\d+)(?:D|d)(\\d+)")
 	rand.Seed(time.Now().UnixNano())
+	return NewPlayerList(), NewMap()
 }
 
 func RandInt(n int) int {
