@@ -1,7 +1,10 @@
 // player.go
 package cpgame
 
-import "fmt"
+import (
+	"fmt"
+	"reflect"
+)
 
 type Player struct {
 	Id    string
@@ -13,13 +16,13 @@ type Player struct {
 	// 在受创后，会持续按时间流血。
 	// 当血量低于一定值后，将定时掷骰，决定是否因流血过多而死亡。
 	// 使用医疗用品可以止血。伤口不会自动愈合。
-	Energy   int    // 行动点数
-	Weight   int    // 当前负重(最大100)
-	Killed   int    // 杀敌数
-	Assist   int    // 助攻数
-	Pos      Coord  // 坐标
-	Mainhand Item   // 物品
-	Pocket   []Item // 所拥有的物品
+	Energy   int           // 行动点数
+	Weight   int           // 当前负重(最大100)
+	Killed   int           // 杀敌数
+	Assist   int           // 助攻数
+	Pos      Coord         // 坐标
+	Mainhand interface{}   // 物品
+	Pocket   []interface{} // 所拥有的物品
 }
 
 func NewPlayer(id string) *Player {
@@ -50,17 +53,6 @@ func (self *Player) Use(item Item) {
 
 }
 
-func (self *Player) Handhold(name string) {
-	for _, v := range self.Pocket {
-		if v.Name == name {
-			self.Mainhand = v
-			return
-		}
-	}
-	// 报错，不拥有这个名字的物品
-	return
-}
-
 func (self *Player) Throw(item Item) {
 
 }
@@ -68,7 +60,7 @@ func (self *Player) Throw(item Item) {
 // 好想用个map直接做啊，不会啊！！！
 
 var DefaultActionList []string = []string{
-	"mv", "atk",
+	"mv", "atk", "equip",
 }
 
 func (self *Player) DefaultAction(action string, parameter []string) Info {
@@ -80,6 +72,10 @@ func (self *Player) DefaultAction(action string, parameter []string) Info {
 		return self.move(parameter[0])
 	case "atk":
 		return self.attack(parameter)
+	case "equip":
+		return self.equip(parameter)
+	default:
+		return Info{Text: "无效的指令"}
 	}
 	return Info{}
 }
@@ -128,4 +124,15 @@ func (self *Player) move(direction string) Info {
 	}
 	self.Energy -= 1
 	return Info{5, fmt.Sprintf("成功移动到坐标[%d,%d]", self.Pos.X, self.Pos.Y)}
+}
+
+func (self *Player) equip(parameter []string) Info {
+	for _, v := range self.Pocket {
+		name := reflect.ValueOf(v).Elem().FieldByName("Name").String()
+		if name == parameter[0] {
+			self.Mainhand = v
+			return Info{0, "成功装备了" + name}
+		}
+	}
+	return Info{-1, "你怎么能撒谎要装备你没有的东西呢？"}
 }

@@ -3,15 +3,9 @@ package cpgame
 
 import (
 	//"fmt"
+	"reflect"
 	"strings"
 )
-
-type Info struct {
-	Statu int // <0表示错误 >0表示时间(秒)
-	Text  string
-}
-
-type Method func([]string) Info
 
 func InputParse(input string) []string {
 	return strings.Fields(input)
@@ -29,7 +23,19 @@ func (self *Player) InputParse(input string) Info {
 			return self.DefaultAction(parameter[0], parameter[1:])
 		}
 	}
-	// 否则，查找第一个参数是否在玩家背包中
+	// 否则，查找第一个参数是否为玩家主手物品的接口
 	// 如果是，则将剩余参数作为输入，调用物品的接口
-	return Info{}
+	if self.Mainhand != nil {
+		item := reflect.ValueOf(self.Mainhand)
+		parameter[0] = strings.Title(parameter[0])
+		if item.MethodByName(parameter[0]).IsValid() {
+			method := item.MethodByName(parameter[0])
+			params := make([]reflect.Value, 0)
+			params = append(params, reflect.ValueOf(self))
+			params = append(params, reflect.ValueOf(parameter[1:]))
+			ret := method.Call(params)[0]
+			return Info{int(ret.FieldByName("Statu").Int()), ret.FieldByName("Text").String()}
+		}
+	}
+	return Info{-1, "YUI不知道你想要什么呢。。。"}
 }
